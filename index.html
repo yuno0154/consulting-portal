@@ -129,6 +129,16 @@
       overflow-y: auto;
     }
 
+    .notice-card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 32px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      border: 1px solid rgba(0,0,0,0.05);
+      transition: background-color 0.8s ease; /* Smooth background change */
+    }
+
     .notice-slide {
       position: absolute;
       top: 0;
@@ -138,23 +148,32 @@
       transform: translateY(20px);
       transition: all 600ms ease;
       pointer-events: none;
-      background: white; /* Ensure background to cover other slides */
     }
 
     .notice-slide.active {
-      position: relative; /* Switch to relative when active to allow container height to adapt */
+      position: relative;
       opacity: 1;
       transform: translateY(0);
       pointer-events: auto;
     }
 
     .notice-content {
-      font-size: 0.95rem;
+      font-size: 0.825rem; /* Smaller font */
       color: var(--text-primary);
       font-weight: 500;
       line-height: 1.6;
-      white-space: pre-line; /* Support multi-line from backticks */
+      white-space: pre-line;
       word-break: keep-all;
+      transition: color 0.6s ease;
+    }
+
+    .notice-date {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 12px;
+      font-weight: 500;
+      transition: color 0.6s ease;
     }
 
     .notice-date {
@@ -584,14 +603,10 @@
     <!-- SIDEBAR -->
     <div class="sidebar-overlay" id="overlay"></div>
     <aside class="sidebar" id="sidebar">
-      <div class="sidebar-header">
-        <span class="sidebar-logo">📢</span>
-        <h2 class="sidebar-title">주요 알림</h2>
-      </div>
 
       <!-- Sliding Notice Carousel -->
-      <div class="notice-card">
-        <span class="notice-label">Notice</span>
+      <div class="notice-card" id="noticeCard">
+        <span class="notice-label" id="noticeLabel">Notice</span>
         <div class="notice-carousel" id="carousel">
           <!-- Dynamically populated by notices.js -->
         </div>
@@ -745,8 +760,18 @@
     // --- CAROUSEL LOGIC ---
     const carousel = document.getElementById('carousel');
     const dotsContainer = document.getElementById('dots');
+    const noticeCard = document.getElementById('noticeCard');
+    const noticeLabel = document.getElementById('noticeLabel');
     let currentIndex = 0;
     let autoSlideInterval;
+
+    // Default colors for rotating background
+    const THEME_COLORS = [
+      { bg: '#ffffff', text: '#2d3748', label: '#718096', date: '#718096' }, // White
+      { bg: '#f0f4ff', text: '#1a365d', label: '#2b6cb0', date: '#4a5568' }, // Soft Blue
+      { bg: '#fff5f5', text: '#742a2a', label: '#c53030', date: '#9b2c2c' }, // Soft Red
+      { bg: '#f0fff4', text: '#22543d', label: '#2f855a', date: '#276749' }  // Soft Green
+    ];
 
     // Render Notices Dynamically
     const renderNotices = () => {
@@ -757,6 +782,14 @@
         // Create Slide
         const slide = document.createElement('div');
         slide.className = `notice-slide ${index === 0 ? 'active' : ''}`;
+        
+        // Use theme from data or cycle through THEME_COLORS
+        const theme = notice.theme || THEME_COLORS[index % THEME_COLORS.length];
+        slide.dataset.bgColor = theme.bg;
+        slide.dataset.textColor = theme.text;
+        slide.dataset.labelColor = theme.label;
+        slide.dataset.dateColor = theme.date;
+
         slide.innerHTML = `
           <p class="notice-content">${notice.content}</p>
           <span class="notice-date">${notice.date}</span>
@@ -774,6 +807,22 @@
         };
         dotsContainer.appendChild(dot);
       });
+
+      if (NOTICES_DATA.length > 0) applyTheme(0);
+    };
+
+    const applyTheme = (index) => {
+      const slides = document.querySelectorAll('.notice-slide');
+      if (!slides[index]) return;
+      
+      const theme = slides[index].dataset;
+      noticeCard.style.backgroundColor = theme.bgColor;
+      noticeLabel.style.color = theme.labelColor;
+      
+      const content = slides[index].querySelector('.notice-content');
+      const date = slides[index].querySelector('.notice-date');
+      if (content) content.style.color = theme.textColor;
+      if (date) date.style.color = theme.dateColor;
     };
 
     const showSlide = (index) => {
@@ -786,6 +835,8 @@
       slides[index].classList.add('active');
       dots[index].classList.add('active');
       currentIndex = index;
+
+      applyTheme(index);
     };
 
     const nextSlide = () => {
