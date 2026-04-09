@@ -35,7 +35,8 @@
       --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
       --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
       --radius: 12px;
-      --transition: 200ms ease-out;
+      --transition: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+      --sidebar-width: 300px;
     }
 
     html {
@@ -48,6 +49,194 @@
       color: var(--text-primary);
       line-height: 1.6;
       min-height: 100vh;
+      display: flex; /* Support sidebar layout */
+    }
+
+    /* ===== LAYOUT WRAPPER ===== */
+    .app-container {
+      display: flex;
+      width: 100%;
+      min-height: 100vh;
+    }
+
+    .main-content {
+      flex: 1;
+      min-width: 0; /* Prevent flex children from overflowing */
+      transition: margin-left var(--transition);
+    }
+
+    /* ===== SIDEBAR ===== */
+    .sidebar {
+      width: var(--sidebar-width);
+      height: 100vh;
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-right: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      padding: 32px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+      z-index: 100;
+      transition: transform var(--transition);
+    }
+
+    .sidebar-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .sidebar-logo {
+      font-size: 1.5rem;
+    }
+
+    .sidebar-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    /* ===== NOTIFICATION CAROUSEL ===== */
+    .notice-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .notice-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .notice-carousel {
+      position: relative;
+      height: 120px; /* Fixed height for consistent sliding */
+    }
+
+    .notice-slide {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 600ms ease;
+      pointer-events: none;
+    }
+
+    .notice-slide.active {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .notice-content {
+      font-size: 0.95rem;
+      color: var(--text-primary);
+      font-weight: 500;
+      line-height: 1.5;
+    }
+
+    .notice-date {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-top: 10px;
+      display: block;
+    }
+
+    .notice-dots {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 16px;
+    }
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--border);
+      cursor: pointer;
+      transition: background var(--transition);
+    }
+
+    .dot.active {
+      background: var(--accent);
+      width: 16px;
+      border-radius: 3px;
+    }
+
+    /* ===== NAVIGATION MENU ===== */
+    .nav-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .nav-item a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      text-decoration: none;
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      font-weight: 500;
+      border-radius: 8px;
+      transition: all var(--transition);
+    }
+
+    .nav-item a:hover {
+      background: rgba(26, 54, 93, 0.05);
+      color: var(--primary);
+    }
+
+    .nav-item.active a {
+      background: var(--primary);
+      color: white;
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    /* ===== MOBILE TOGGLE ===== */
+    .mobile-header {
+      display: none;
+      background: var(--primary);
+      color: white;
+      padding: 12px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 101;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .menu-toggle {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
     }
 
     /* ===== HEADER ===== */
@@ -144,7 +333,7 @@
     .main {
       max-width: 1000px;
       margin: 0 auto;
-      padding: 0 24px 80px;
+      padding: 40px 24px 80px;
     }
 
     .section-label {
@@ -327,6 +516,37 @@
     }
 
     /* ===== RESPONSIVE ===== */
+    @media (max-width: 1100px) {
+      .sidebar {
+        position: fixed;
+        transform: translateX(-100%);
+      }
+      .sidebar.open {
+        transform: translateX(0);
+        box-shadow: 20px 0 40px rgba(0,0,0,0.1);
+      }
+      .mobile-header {
+        display: flex;
+      }
+      .main-content {
+        width: 100%;
+      }
+      .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.3);
+        backdrop-filter: blur(4px);
+        z-index: 99;
+      }
+      .sidebar-overlay.active {
+        display: block;
+      }
+    }
+
     @media (max-width: 700px) {
       .cards-grid {
         grid-template-columns: 1fr;
@@ -354,176 +574,244 @@
 </head>
 <body>
 
-  <!-- HEADER -->
-  <header class="header">
-    <div class="header-inner">
-      <span class="header-icon">🎓</span>
-      <div class="header-text">
-        <h1 class="header-title">2026 학생평가 종합점검단</h1>
-        <p class="header-sub">Gyeongsangbuk-do Office of Education</p>
+  <div class="app-container">
+    <!-- SIDEBAR -->
+    <div class="sidebar-overlay" id="overlay"></div>
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <span class="sidebar-logo">📢</span>
+        <h2 class="sidebar-title">주요 알림</h2>
       </div>
+
+      <!-- Sliding Notice Carousel -->
+      <div class="notice-card">
+        <span class="notice-label">Notice</span>
+        <div class="notice-carousel" id="carousel">
+          <!-- Dynamically populated by notices.js -->
+        </div>
+        <div class="notice-dots" id="dots">
+          <!-- Dynamically populated by notices.js -->
+        </div>
+      </div>
+
+      <nav class="nav-menu">
+        <div class="section-label" style="font-size: 0.65rem; margin-top: 20px;">Support</div>
+        <ul class="nav-list">
+          <li class="nav-item"><a href="#">💬 시스템 문의</a></li>
+          <li class="nav-item"><a href="#">📂 서식 다운로드</a></li>
+          <li class="nav-item"><a href="#">📅 연간 일정표</a></li>
+        </ul>
+      </nav>
+
+      <div class="sidebar-footer">
+        <p>© 2026 학생평가 종합점검단</p>
+        <p>Gyeongsangbuk-do Office of Education</p>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT AREA -->
+    <div class="main-content">
+      <!-- MOBILE HEADER -->
+      <div class="mobile-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 1.2rem;">🎓</span>
+          <span style="font-weight: 700; font-size: 0.9rem;">종합점검단 통합 포털</span>
+        </div>
+        <button class="menu-toggle" id="menuToggle">☰</button>
+      </div>
+
+      <!-- HEADER -->
+      <header class="header">
+        <div class="header-inner">
+          <span class="header-icon">🎓</span>
+          <div class="header-text">
+            <h1 class="header-title">2026 학생평가 종합점검단</h1>
+            <p class="header-sub">Gyeongsangbuk-do Office of Education</p>
+          </div>
+        </div>
+      </header>
+
+      <!-- HERO -->
+      <section class="hero">
+        <div class="hero-inner">
+          <h2 class="hero-title">학생평가 종합점검단 점검을 위한 안내</h2>
+          <p class="hero-desc">
+            선생님의 가르침과 학생의 배움이 공정하고 신뢰로울 수 있도록,
+          </p>
+          <div class="hero-divider"></div>
+        </div>
+      </section>
+
+      <!-- MAIN CARDS -->
+      <main class="main">
+        <div class="section-label">Quick Access</div>
+        <div class="cards-grid">
+          <!-- Card 1: 경북수업나눔마당 -->
+          <a class="card" href="https://school.gyo6.net/1madang/main.do?sysId=1madang" target="_blank" rel="noopener">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/>
+              </svg>
+            </div>
+            <h3 class="card-title">경북수업나눔마당</h3>
+            <p class="card-desc">학교별 평가계획서 다운로드 및<br>검토결과 제출(댓글)을 위한 공간입니다.</p>
+            <span class="card-btn">나눔마당 열기 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg></span>
+          </a>
+
+          <!-- Card 2: 평가계획서 서면 컨설팅 -->
+          <a class="card" href="https://yuno0154.github.io/assessment-consulting" target="_blank" rel="noopener">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+            </div>
+            <h3 class="card-title">평가계획서 서면 컨설팅</h3>
+            <p class="card-desc">평가계획서 검토 의견 작성은<br>서면 컨설팅 시스템을 이용하세요.</p>
+            <span class="card-btn">시스템 열기 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg></span>
+          </a>
+
+          <!-- Card 3: 성취기준 검색 -->
+          <a class="card" href="https://achivement-standard.streamlit.app/" target="_blank" rel="noopener">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+            </div>
+            <h3 class="card-title">성취기준 검색</h3>
+            <p class="card-desc">성취기준 진술문을<br>빠르게 검색하고 확인할 수 있습니다.</p>
+            <span class="card-btn">Streamlit에서 열기 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg></span>
+          </a>
+
+          <!-- Card 4: 중학교 연수 실습 패들렛 -->
+          <a class="card" href="https://padlet.com/sgh/2604072" target="_blank" rel="noopener">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24"><path d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3zm6.82 6L12 12.72 5.18 9 12 5.28 18.82 9zM17 15.99l-5 2.73-5-2.73v-3.72L12 15l5-2.73v3.72z"/></svg>
+            </div>
+            <h3 class="card-title">중학교 연수 실습 패들렛</h3>
+            <p class="card-desc">중학교 연수 실습 자료를<br>패들렛에서 확인하세요.</p>
+            <span class="card-btn">Padlet에서 보기 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg></span>
+          </a>
+
+          <!-- Card 5: 고등학교 연수 실습 패들렛 -->
+          <a class="card" href="https://padlet.com/sgh/2604071" target="_blank" rel="noopener">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24"><path d="M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82zM12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/></svg>
+            </div>
+            <h3 class="card-title">고등학교 연수 실습 패들렛</h3>
+            <p class="card-desc">고등학교 연수 실습 자료를<br>패들렛에서 확인하세요.</p>
+            <span class="card-btn">Padlet에서 보기 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg></span>
+          </a>
+
+          <!-- Card 6: 종합점검단 편성 -->
+          <a class="card" href="https://yuno0154.github.io/assesment-consultant/" target="_blank" rel="noopener">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+            </div>
+            <h3 class="card-title">종합점검단 편성</h3>
+            <p class="card-desc">학생평가 종합점검단 구성 멤버와<br>모둠 편성표를 확인하세요.</p>
+            <span class="card-btn">사이트 열기 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg></span>
+          </a>
+
+          <!-- Card 7: Google Drive -->
+          <a class="card card--drive" href="https://drive.google.com/drive/folders/1UljogUTq1RETDI3BF3uIDl1A_u_CVomz?usp=sharing" target="_blank" rel="noopener">
+            <div class="card-icon"><svg viewBox="0 0 24 24"><path d="M8 16h8v2H8zm0-4h8v2H8zm6-10H6c-1.1 0-2 .9-2 2v16l8-4.8L18 18v-2c0-1.1-.9-2-2-2z"/></svg></div>
+            <div class="card-body">
+              <h3 class="card-title">구글 드라이브</h3>
+              <p class="card-desc">점검단에 필요한 파일을 구글 드라이브에서 확인하세요.</p>
+            </div>
+            <span class="card-btn">드라이브 열기 <svg viewBox="0 0 24 24" fill="white"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg></span>
+          </a>
+        </div>
+      </main>
+
+      <!-- FOOTER -->
+      <footer class="footer">
+        <p class="footer-school">2026 학생평가 종합점검단 | 경상북도교육청</p>
+        <p class="footer-copy" style="font-size: 0.75rem; opacity: 0.8; margin-top: 10px;">만든이 : 사곡고등학교 수석교사 최연호</p>
+      </footer>
     </div>
-  </header>
+  </div>
 
-  <!-- HERO -->
-  <section class="hero">
-    <div class="hero-inner">
-      <h2 class="hero-title">학생평가 종합점검단 점검을 위한 안내</h2>
-      <p class="hero-desc">
-        선생님의 가르침과 학생의 배움이 공정하고 신뢰로울 수 있도록,
-      </p>
-      <div class="hero-divider"></div>
-    </div>
-  </section>
+  <!-- External Data -->
+  <script src="notices.js"></script>
 
-  <!-- MAIN CONTENT -->
-  <main class="main">
+  <script>
+    // --- SIDEBAR LOGIC ---
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+    const menuToggle = document.getElementById('menuToggle');
 
-    <div class="section-label">Quick Access</div>
+    const toggleSidebar = () => {
+      sidebar.classList.toggle('open');
+      overlay.classList.toggle('active');
+    };
 
-    <div class="cards-grid">
+    menuToggle.onclick = toggleSidebar;
+    overlay.onclick = toggleSidebar;
 
-      <!-- Card 1: 경북수업나눔마당 -->
-      <a class="card" href="https://school.gyo6.net/1madang/main.do?sysId=1madang" target="_blank" rel="noopener">
-        <div class="card-icon">
-          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/>
-          </svg>
-        </div>
-        <h3 class="card-title">경북수업나눔마당</h3>
-        <p class="card-desc">
-          학교별 평가계획서 다운로드 및<br>검토결과 제출(댓글)을 위한 공간입니다.
-        </p>
-        <span class="card-btn">
-          나눔마당 열기
-          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
-          </svg>
-        </span>
-      </a>
+    // --- CAROUSEL LOGIC ---
+    const carousel = document.getElementById('carousel');
+    const dotsContainer = document.getElementById('dots');
+    let currentIndex = 0;
+    let autoSlideInterval;
 
-      <!-- Card 2: 평가계획서 서면 컨설팅 -->
-      <a class="card" href="https://yuno0154.github.io/assessment-consulting" target="_blank" rel="noopener">
-        <div class="card-icon">
-          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
-          </svg>
-        </div>
-        <h3 class="card-title">평가계획서 서면 컨설팅</h3>
-        <p class="card-desc">
-          평가계획서 검토 의견 작성은<br>서면 컨설팅 시스템을 이용하세요.
-        </p>
-        <span class="card-btn">
-          시스템 열기
-          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
-          </svg>
-        </span>
-      </a>
+    // Render Notices Dynamically
+    const renderNotices = () => {
+      carousel.innerHTML = '';
+      dotsContainer.innerHTML = '';
 
-      <!-- Card 3: 성취기준 검색 -->
-      <a class="card" href="https://achivement-standard.streamlit.app/" target="_blank" rel="noopener">
-        <div class="card-icon">
-          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
-          </svg>
-        </div>
-        <h3 class="card-title">성취기준 검색</h3>
-        <p class="card-desc">
-          성취기준 진술문을<br>빠르게 검색하고 확인할 수 있습니다.
-        </p>
-        <span class="card-btn">
-          Streamlit에서 열기
-          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
-          </svg>
-        </span>
-      </a>
+      NOTICES_DATA.forEach((notice, index) => {
+        // Create Slide
+        const slide = document.createElement('div');
+        slide.className = `notice-slide ${index === 0 ? 'active' : ''}`;
+        slide.innerHTML = `
+          <p class="notice-content">${notice.content}</p>
+          <span class="notice-date">${notice.date}</span>
+        `;
+        carousel.appendChild(slide);
 
-      <!-- Card 4: 중학교 연수 실습 패들렛 -->
-      <a class="card" href="https://padlet.com/sgh/2604072" target="_blank" rel="noopener">
-        <div class="card-icon">
-          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3zm6.82 6L12 12.72 5.18 9 12 5.28 18.82 9zM17 15.99l-5 2.73-5-2.73v-3.72L12 15l5-2.73v3.72z"/>
-          </svg>
-        </div>
-        <h3 class="card-title">중학교 연수 실습 패들렛</h3>
-        <p class="card-desc">
-          중학교 연수 실습 자료를<br>패들렛에서 확인하세요.
-        </p>
-        <span class="card-btn">
-          Padlet에서 보기
-          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
-          </svg>
-        </span>
-      </a>
+        // Create Dot
+        const dot = document.createElement('span');
+        dot.className = `dot ${index === 0 ? 'active' : ''}`;
+        dot.dataset.index = index;
+        dot.onclick = () => {
+          showSlide(index);
+          stopAutoSlide();
+          startAutoSlide();
+        };
+        dotsContainer.appendChild(dot);
+      });
+    };
 
-      <!-- Card 5: 고등학교 연수 실습 패들렛 -->
-      <a class="card" href="https://padlet.com/sgh/2604071" target="_blank" rel="noopener">
-        <div class="card-icon">
-          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path d="M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82zM12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/>
-          </svg>
-        </div>
-        <h3 class="card-title">고등학교 연수 실습 패들렛</h3>
-        <p class="card-desc">
-          고등학교 연수 실습 자료를<br>패들렛에서 확인하세요.
-        </p>
-        <span class="card-btn">
-          Padlet에서 보기
-          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
-          </svg>
-        </span>
-      </a>
+    const showSlide = (index) => {
+      const slides = document.querySelectorAll('.notice-slide');
+      const dots = document.querySelectorAll('.dot');
+      
+      slides.forEach(s => s.classList.remove('active'));
+      dots.forEach(d => d.classList.remove('active'));
+      
+      slides[index].classList.add('active');
+      dots[index].classList.add('active');
+      currentIndex = index;
+    };
 
-      <!-- Card 6: 종합점검단 편성 -->
-      <a class="card" href="https://yuno0154.github.io/assesment-consultant/" target="_blank" rel="noopener">
-        <div class="card-icon">
-          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
-          </svg>
-        </div>
-        <h3 class="card-title">종합점검단 편성</h3>
-        <p class="card-desc">
-          학생평가 종합점검단 구성 멤버와<br>모둠 편성표를 확인하세요.
-        </p>
-        <span class="card-btn">
-          사이트 열기
-          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
-          </svg>
-        </span>
-      </a>
+    const nextSlide = () => {
+      const slides = document.querySelectorAll('.notice-slide');
+      if (slides.length === 0) return;
+      let next = (currentIndex + 1) % slides.length;
+      showSlide(next);
+    };
 
-      <!-- Card 7: Google Drive (full width CTA) -->
-      <a class="card card--drive" href="https://drive.google.com/drive/folders/1UljogUTq1RETDI3BF3uIDl1A_u_CVomz?usp=sharing" target="_blank" rel="noopener">
-        <div class="card-icon">
-          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path d="M8 16h8v2H8zm0-4h8v2H8zm6-10H6c-1.1 0-2 .9-2 2v16l8-4.8L18 18v-2c0-1.1-.9-2-2-2z"/>
-          </svg>
-        </div>
-        <div class="card-body">
-          <h3 class="card-title">구글 드라이브</h3>
-          <p class="card-desc">점검단에 필요한 파일을 구글 드라이브에서 모두 확인하세요.</p>
-        </div>
-        <span class="card-btn">
-          드라이브 열기
-          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
-          </svg>
-        </span>
-      </a>
+    const startAutoSlide = () => {
+      if (autoSlideInterval) clearInterval(autoSlideInterval);
+      autoSlideInterval = setInterval(nextSlide, 5000);
+    };
 
-    </div>
-  </main>
+    const stopAutoSlide = () => {
+      clearInterval(autoSlideInterval);
+    };
 
-  <!-- FOOTER -->
-  <footer class="footer">
-    <p class="footer-school">2026 학생평가 종합점검단 | 경상북도교육청</p>
-    <p class="footer-copy" style="font-size: 0.75rem; opacity: 0.8; margin-top: 10px;">만든이 : 사곡고등학교 수석교사 최연호</p>
-  </footer>
-
+    // Initialize
+    renderNotices();
+    carousel.onmouseenter = stopAutoSlide;
+    carousel.onmouseleave = startAutoSlide;
+    startAutoSlide();
+  </script>
 </body>
 </html>
